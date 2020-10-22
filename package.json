@@ -1,0 +1,24 @@
+{
+  "name": "hcc-api",
+  "version": "1.0.0",
+  "description": "API for HCC personal project",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maugarbru/hcc-api.git"
+  },
+  "author": "MauricioGarzon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maugarbru/hcc-api/issues"
+  },
+  "homepage": "https://github.com/maugarbru/hcc-api#readme"
+}
