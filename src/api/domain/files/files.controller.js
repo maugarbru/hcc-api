@@ -12,9 +12,9 @@ async function getStoredFiles(req, res) {
 
     if (type == 'movie') {
       let storedMovies = await moviesService.getMoviesDetails(storedFiles);
-      res.status(HTTP_CODES.OK).send({ data: { files: storedMovies } });
+      res.status(HTTP_CODES.OK).send({ files: storedMovies } );
     } else {
-      res.status(HTTP_CODES.OK).send({ data: { files: storedFiles } });
+      res.status(HTTP_CODES.OK).send({ files: storedFiles } );
     }
   } catch (error) {
     res.status(error.status).send({ message: error.message, status: error.status });
