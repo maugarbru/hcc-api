@@ -28,9 +28,8 @@ async function openStoredFile(req, res) {
 
 async function closeOpenedFile(req, res) {
   try {
-    let pid = req.body.pid
     let type = req.body.type
-    const result = await filesService.closeFile(pid, type);
+    const result = await filesService.closeFile(type);
 
     res.status(HTTP_CODES.OK).send({ data: { info: result } });;
   } catch (error) {
