@@ -14,6 +14,32 @@ async function getStoredFiles(req, res) {
   }
 }
 
+async function openStoredFile(req, res) {
+  try {
+    let path = req.body.path
+    let type = req.body.type
+    const process_pid = await filesService.openFile(path, type);
+
+    res.status(HTTP_CODES.OK).send({ data: { pid: process_pid } });;
+  } catch (error) {
+    res.status(error.status).send({ message: error.message, status: error.status });
+  }
+}
+
+async function closeOpenedFile(req, res) {
+  try {
+    let pid = req.body.pid
+    let type = req.body.type
+    const result = await filesService.closeFile(pid, type);
+
+    res.status(HTTP_CODES.OK).send({ data: { info: result } });;
+  } catch (error) {
+    res.status(error.status).send({ message: error.message, status: error.status });
+  }
+}
+
 module.exports = {
   getStoredFiles,
+  openStoredFile,
+  closeOpenedFile
 };
