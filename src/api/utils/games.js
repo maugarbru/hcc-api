@@ -21,15 +21,15 @@ async function getGamesDetails(games) {
                 data: `fields id,cover.image_id,first_release_date,genres.name,name,summary,artworks.image_id,rating,rating_count; search "${game_name}"; limit 3;`
             })
             details.info = info.data.sort(function (a, b) {
-                if (!a.rating) {
-                    return b.rating
-                } else if (!b.rating) {
-                    return 0 - a.rating
+                if (!a.rating_count) {
+                    return b.rating_count
+                } else if (!b.rating_count) {
+                    return 0 - a.rating_count
                 } else {
-                    return b.rating - a.rating
+                    return b.rating_count - a.rating_count
                 }
             })[0];
-            details.info.rating = parseFloat(details.info.rating / 10).toFixed(1)
+            details.info.rating = parseFloat((details.info.rating / 10).toFixed(1))
         } catch (error) {
             console.log({ error });
         }
