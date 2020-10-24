@@ -1,5 +1,6 @@
 const HTTP_CODES = require('../../utils/http-codes');
 const moviesService = require('../../utils/movies');
+const gamesService = require('../../utils/games');
 const { buildFilesService } = require('./files.service');
 
 const filesService = buildFilesService();
@@ -10,10 +11,13 @@ async function getStoredFiles(req, res) {
     let type = req.body.type
     const storedFiles = await filesService.getFiles(path);
 
-    if (type == 'movie') {
+    if (type == 'movies') {
       let storedMovies = await moviesService.getMoviesDetails(storedFiles);
       res.status(HTTP_CODES.OK).send({ files: storedMovies } );
-    } else {
+    } else if (type == 'games') {
+      let storedGames = await gamesService.getGamesDetails(storedFiles);
+      res.status(HTTP_CODES.OK).send({ files: storedGames } );
+    } else{
       res.status(HTTP_CODES.OK).send({ files: storedFiles } );
     }
   } catch (error) {
