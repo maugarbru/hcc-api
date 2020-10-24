@@ -17,7 +17,7 @@ async function getGamesDetails(games) {
                     'Content-Type': 'text/plain',
                 },
                 url: "https://api.igdb.com/v4/games",
-                data: `fields id,cover.image_id,first_release_date,genres.name,name,summary,artworks.image_id; search "${game_name}"; limit 1;`
+                data: `fields id,cover.image_id,first_release_date,genres.name,name,summary,artworks.image_id,rating,rating_count; search "${game_name}"; limit 1;`
             })
             details.info = info.data[0]
         } catch (error) {
