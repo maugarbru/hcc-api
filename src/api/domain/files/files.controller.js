@@ -9,6 +9,7 @@ async function getStoredFiles(req, res) {
   try {
     let path = req.body.path
     let type = req.body.type
+    console.log(`Searching files TYPE=${type} in PATH=${path}`);
     const storedFiles = await filesService.getFiles(path);
 
     if (type == 'movies') {

@@ -1,14 +1,15 @@
 const axios = require('axios')
 
 async function getGamesDetails(games) {
+    console.log(`Getting games details...`);
     let token = await getAccessToken()
     let info = []
     for (let index = 0; index < games.length; index++) {
         let game = games[index]
         let game_name = game.split('.')[0].replace(/[^\w\s]/gi, '')
-
         let details = { path: game }
         try {
+            console.log(`Getting details for GAME=${game_name} ...`);
             let info = await axios({
                 method: 'post',
                 headers: {
@@ -17,9 +18,18 @@ async function getGamesDetails(games) {
                     'Content-Type': 'text/plain',
                 },
                 url: "https://api.igdb.com/v4/games",
-                data: `fields id,cover.image_id,first_release_date,genres.name,name,summary,artworks.image_id,rating,rating_count; search "${game_name}"; limit 1;`
+                data: `fields id,cover.image_id,first_release_date,genres.name,name,summary,artworks.image_id,rating,rating_count; search "${game_name}"; limit 3;`
             })
-            details.info = info.data[0]
+            details.info = info.data.sort(function (a, b) {
+                if (!a.rating) {
+                    return b.rating
+                } else if (!b.rating) {
+                    return 0 - a.rating
+                } else {
+                    return b.rating - a.rating
+                }
+            })[0];
+            details.info.rating = parseFloat(details.info.rating / 10).toFixed(1)
         } catch (error) {
             console.log({ error });
         }
@@ -29,6 +39,7 @@ async function getGamesDetails(games) {
 }
 
 async function getAccessToken() {
+    console.log(`Getting access token...`);
     let token = ""
     try {
         let info = await axios({
@@ -39,6 +50,7 @@ async function getAccessToken() {
     } catch (error) {
         console.log({ error });
     }
+    console.log(`Acquired TOKEN=${token}`);
     return token
 }
 
