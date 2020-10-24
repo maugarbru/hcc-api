@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 async function getMoviesDetails(movies) {
-    let result = []
+    let info = []
     for (let index = 0; index < movies.length; index++) {
         let movie = movies[index]
         let name = movie.split('.')[0].split('%')[0]
@@ -15,9 +15,34 @@ async function getMoviesDetails(movies) {
             })
             details.info = info.data.results[0]
         } catch (error) {
-
+            console.log(error);
         }
-        result.push(details)
+        info.push(details)
+    }
+    let result = await getMoviesGenres(info)
+    return result
+}
+
+async function getMoviesGenres(movies) {
+    let genres = []
+    let result = []
+    try {
+        let info = await axios({
+            method: 'get',
+            url: `https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.API_KEY}&language=en-US`
+        })
+        genres = info.data.genres
+        movies.forEach(movie => {
+            let genres_list = []
+            movie.info.genre_ids.forEach(genre => {
+                let genre_info = genres.filter(element => genre == element.id)
+                genres_list.push(genre_info[0])
+            });
+            movie.info.genre_ids = genres_list
+            result.push(movie)
+        });
+    } catch (error) {
+        console.log(error);
     }
     return result
 }
