@@ -14,15 +14,8 @@ function buildFilesService() {
       return files
     },
     async openFile(path, type) {
-      if (type == "video") {
-        let file = exec(`"C:\\Program Files\\VideoLAN\\VLC\\vlc.exe" "${path}"`, { timeout: 3000 })
-        return file.pid
-      } else if (type == "game") {
-        let file = exec(`"${path}"`, { timeout: 3000 })
-        return file.pid
-      } else {
-        throw new BadDataError('Type not supported')
-      }
+      let file = exec(`"${path}"`, { timeout: 3000 })
+      return file.pid
 
     },
     async closeFile(type) {

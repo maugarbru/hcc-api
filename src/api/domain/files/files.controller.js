@@ -31,6 +31,7 @@ async function openStoredFile(req, res) {
     let path = req.body.path
     let type = req.body.type
     const process_pid = await filesService.openFile(path, type);
+    console.log(`Opening file TYPE=${type} in PATH=${path}`);
 
     res.status(HTTP_CODES.OK).send({ data: { pid: process_pid } });;
   } catch (error) {
@@ -42,6 +43,7 @@ async function closeOpenedFile(req, res) {
   try {
     let type = req.body.type
     const result = await filesService.closeFile(type);
+    console.log(`Closing file TYPE=${type}`);
 
     res.status(HTTP_CODES.OK).send({ data: { info: result } });;
   } catch (error) {
