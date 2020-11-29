@@ -1,44 +1,54 @@
 const axios = require('axios')
+let moviesRoutes = []
+let moviesInfo = []
 
-async function getMoviesDetails(movies) { 
+async function getMoviesDetails(movies) {
     let info = []
     let promises = []
     console.log(`Getting movies details...`);
-    for (let index = 0; index < movies.length; index++) {
-        let movie = movies[index]
-        let name = movie.split('.')[0].split('%')[0]
-        let year = movie.split('.')[0].split('%')[1]
-        console.log(`Getting details for MOVIE=${name} YEAR=${year} ...`);
-        promises.push(axios.get('https://api.themoviedb.org/3/search/movie', {
-            params: {
-                api_key: process.env.API_KEY,
-                language: "en-US",
-                query: name,
-                page: 1,
-                include_adult: true,
-                year: year
-            }
-        }))
-    }
-    try {
-        await Promise.allSettled(promises).then(async function (values) {
-            for (let index = 0; index < values.length; index++) {
-                const element = values[index];
-                let detail = {
-                    path: movies[index],
-                    info: element.value.data.results[0]
+    if (moviesRoutes.length == 0 || moviesValidation(movies)) {
+        for (let index = 0; index < movies.length; index++) {
+            let movie = movies[index]
+            let name = movie.split('.')[0].split('%')[0]
+            let year = movie.split('.')[0].split('%')[1]
+            console.log(`Getting details for MOVIE=${name} YEAR=${year} ...`);
+            promises.push(axios.get('https://api.themoviedb.org/3/search/movie', {
+                params: {
+                    api_key: process.env.API_KEY,
+                    language: "en-US",
+                    query: name,
+                    page: 1,
+                    include_adult: true,
+                    year: year
                 }
-                info.push(detail)
-            }
-        });
-        console.log(`...OK getting Movie Details`);
-        let result = await getMoviesGenres(info)
-        return result
-    } catch (error) {
-        console.log(`...ERROR getting Movie Details`);
-        console.log(error);
-        return []
+            }))
+        }
+        try {
+            await Promise.allSettled(promises).then(async function (values) {
+                for (let index = 0; index < values.length; index++) {
+                    const element = values[index];
+                    let detail = {
+                        path: movies[index],
+                        info: element.value.data.results[0]
+                    }
+                    info.push(detail)
+                }
+            });
+            console.log(`...OK getting Movie Details`);
+            let result = await getMoviesGenres(info)
+            moviesInfo = result
+            moviesRoutes = movies
+            return result
+        } catch (error) {
+            console.log(`...ERROR getting Movie Details`);
+            console.log(error);
+            return []
+        }
+    } else {
+        console.log(`...OK Movies details loaded from memory`);
+        return moviesInfo
     }
+
 }
 
 async function getMoviesGenres(movies) {
@@ -66,6 +76,10 @@ async function getMoviesGenres(movies) {
         console.log(error);
     }
     return result
+}
+
+function moviesValidation(movies) {
+    return Math.abs(moviesRoutes.length - movies.length) > 0;
 }
 
 module.exports = {
