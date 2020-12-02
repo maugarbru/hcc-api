@@ -11,7 +11,7 @@ async function getMoviesDetails(movies) {
             let movie = movies[index]
             let name = movie.split('.')[0].split('%')[0]
             let year = movie.split('.')[0].split('%')[1]
-            console.log(`Getting details for MOVIE=${name} YEAR=${year} ...`);
+            // console.log(`Getting details for MOVIE=${name} YEAR=${year} ...`);
             promises.push(axios.get('https://api.themoviedb.org/3/search/movie', {
                 params: {
                     api_key: process.env.API_KEY,
@@ -82,7 +82,8 @@ async function getMoviesGenres(movies) {
 }
 
 function moviesValidation(oldMovies, newMovies) {
-    return oldMovies.length == 0 || Math.abs(oldMovies.length - newMovies.length) > 0;
+    const areEqual = oldMovies.every(elementA => newMovies.includes(elementA))
+    return oldMovies.length == 0 || !areEqual;
 }
 
 function writeFile(data) {
