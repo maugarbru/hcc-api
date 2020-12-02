@@ -101,8 +101,10 @@ function tokenValidation(token) {
 }
 
 function gamesValidation(oldGames, newGames) {
-    const areEqual = oldGames.every(elementA => newGames.includes(elementA))
-    return oldGames.length == 0 || !areEqual;
+    let difference = oldGames
+        .filter(x => !newGames.includes(x))
+        .concat(newGames.filter(x => !oldGames.includes(x)));
+    return oldGames.length == 0 || difference.length > 0;
 }
 
 function writeFile(data) {

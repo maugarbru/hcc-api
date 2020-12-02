@@ -82,8 +82,10 @@ async function getMoviesGenres(movies) {
 }
 
 function moviesValidation(oldMovies, newMovies) {
-    const areEqual = oldMovies.every(elementA => newMovies.includes(elementA))
-    return oldMovies.length == 0 || !areEqual;
+    let difference = oldMovies
+        .filter(x => !newMovies.includes(x))
+        .concat(newMovies.filter(x => !oldMovies.includes(x)));
+    return oldMovies.length == 0 || difference.length > 0;
 }
 
 function writeFile(data) {
