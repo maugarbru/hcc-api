@@ -1,15 +1,14 @@
 const axios = require('axios')
 const moment = require('moment')
-let acquiredToken = null
-let gamesRoutes = []
-let gamesInfo = []
+const fs = require('fs')
 
 async function getGamesDetails(games) {
-    let token = await getAccessToken()
+    let data = await readJSON()
+    let token = await getAccessToken(data.token)
     let info = []
     let promises = []
     console.log(`Getting games details...`);
-    if (gamesRoutes.length == 0 || gamesValidation(games)) {
+    if (gamesValidation(data.gamesRoutes, games)) {
         for (let index = 0; index < games.length; index++) {
             let game = games[index]
             let game_name = game.split('.')[0].replace(/[^\w\s]/gi, '')
@@ -18,7 +17,7 @@ async function getGamesDetails(games) {
                 method: 'post',
                 headers: {
                     "Client-ID": process.env.CLIENT_ID,
-                    "Authorization": `Bearer ${token}`,
+                    "Authorization": `Bearer ${token.token}`,
                     'Content-Type': 'text/plain',
                 },
                 url: "https://api.igdb.com/v4/games",
@@ -50,8 +49,12 @@ async function getGamesDetails(games) {
                 }
             });
             console.log(`...OK Game details`);
-            gamesInfo = info
-            gamesRoutes = games
+            let data = {
+                token: token,
+                gamesInfo: info,
+                gamesRoutes: games
+            }
+            writeFile(data)
             return info
         } catch (error) {
             console.log(`...ERROR getting Game details`);
@@ -60,13 +63,13 @@ async function getGamesDetails(games) {
         }
     } else {
         console.log(`...OK Game details loaded from memory`);
-        return gamesInfo
+        return data.gamesInfo
     }
 }
 
-async function getAccessToken() {
+async function getAccessToken(acquiredToken) {
     console.log(`Getting access token...`);
-    if (acquiredToken == null || dateDiff(acquiredToken.date) >= 0) {
+    if (tokenValidation(acquiredToken)) {
         let token = ""
         let time = 0
         try {
@@ -81,24 +84,48 @@ async function getAccessToken() {
             console.log({ error });
         }
         console.log(`Acquired TOKEN=${token}`);
-        acquiredToken = {
+        newToken = {
             token: token,
             date: moment(new Date()).add(time, 'seconds')
         }
-        return token
+        return newToken
     } else {
-        console.log(`Access token time left: ${dateDiff(acquiredToken.date)} days.`);
-        return acquiredToken.token
+        console.log(`Access token time left: ${moment(new Date()).diff(moment(acquiredToken.date), 'days')} days.`);
+        return acquiredToken
     }
 
 }
 
-function dateDiff(date) {
-    return moment(new Date()).diff(moment(date), 'days')
+function tokenValidation(token) {
+    return token == null || moment(new Date()).diff(moment(token.date), 'days') >= 0
 }
 
-function gamesValidation(games) {
-    return Math.abs(gamesRoutes.length - games.length) > 0;
+function gamesValidation(oldGames, newGames) {
+    return oldGames.length == 0 || Math.abs(oldGames.length - newGames.length) > 0;
+}
+
+function writeFile(data) {
+    fs.writeFile('./files/games.json', JSON.stringify(data), (err) => {
+        if (err) {
+            console.log(err);
+        }
+        console.log("Games info saved in JSON file.");
+    })
+}
+
+async function readJSON() {
+    try {
+        let data = await fs.readFileSync('./files/games.json',
+            { encoding: 'utf8', flag: 'r' });
+        return JSON.parse(data)
+    } catch (error) {
+        console.log("No games.json file.");
+        return {
+            token: null,
+            gamesInfo: [],
+            gamesRoutes: []
+        }
+    }
 }
 
 module.exports = {
